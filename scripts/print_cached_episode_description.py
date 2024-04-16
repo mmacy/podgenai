@@ -1,3 +1,4 @@
+from podgenai.config import PROMPTS
 from podgenai.content.topic import get_topic
 from podgenai.work import get_topic_work_path
 
@@ -27,7 +28,7 @@ def get_cached_episode_description_html(topic: str) -> str:
     assert subtopics_list
 
     subtopics_list_html = "\n".join(f"  <li>{s}</li>" for s in subtopics_list)
-    description = f"<p><strong>Sections</strong>:</p>\n<ol>\n{subtopics_list_html}\n</ol>"
+    description = f"<p><strong>Sections</strong>:</p>\n<ol>\n{subtopics_list_html}\n</ol>\n<p><br></p><p><strong>Disclaimer</strong>: <em>{PROMPTS['tts_disclaimer']}</em></p>"
     return description
 
 

@@ -1,18 +1,22 @@
 # podgenai
 **podgenai** is a Python 3.12 application to generate approximately an hour-long informational single-speaker audiobook/podcast mp3 file on a given topic using the GPT-4 LLM. A funded [OpenAI API key](https://platform.openai.com/api-keys) is required.
 
-This very much is hurriedly-written alpha software, but it is tested to work, and the used prompts have been customized to obtain reasonable results.
-
 ## Approach
-For a given topic, the high-level reference approach is:
+The `gpt-4-turbo-preview` and `tts-1` models are used. For a given topic, the high-level reference approach is:
 
-* The voice is selected using the LLM from three choices.
 * A list of applicable subtopics are listed using the LLM. If however the topic is unknown to the LLM, the process is aborted.
+* The voice is selected using the LLM from three choices.
 * Concurrently for each subtopic, the corresponding text and speech are generated using the LLM and TTS respectively.
 * The speech files are concatenated using `ffmpeg`.
 
+Although there may sometimes exist some semantic repetition of content across subtopics, this has intentionally not been "optimized away" because this repetition of important points can help with learning and memorization. To dive deeper into a particular subtopic, one can try to create a new file just for it.
+
 ## Samples
 These generated mp3 files are available for download. In effect, these also constitute a minimal manual test suite, with the unique purpose of each sample noted. As a reminder, the voice is selected by the LLM.
+
+There is also a related [podcast](https://podcasters.spotify.com/pod/podgenai) ([RSS](https://anchor.fm/s/f4868644/podcast/rss)) to which episodes on additional topics may be manually posted over time.
+
+A playback speed of 1.05x is recommended for most topics.
 
 | Voice    | Name                                                                                                                                          | Purpose                                                               |
 |----------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
@@ -24,8 +28,6 @@ These generated mp3 files are available for download. In effect, these also cons
 | Female   | [Buffy the Vampire Slayer](https://mega.nz/file/FddQWRJb#q_3XoTfgsQIvU6oZcJK7Y9or4Tjcx7BK2YLf_whjH4g)                                         | Female voice selection                                                |
 | Male     | [Bitcoin for nerds](https://mega.nz/file/QVNyWYrZ#RqKuAcG6LUwOZi20ZBkygRNin9f7rpLBm1xsoILoAFI)                                                | Male voice selection                                                  |
 
-You may choose to subscribe to the related [podcast](https://podcasters.spotify.com/pod/podgenai) to which episodes on additional topics may be manually posted over time.
-
 ## Setup
 * Ensure that [`rye`](https://rye-up.com/) is installed and available.
 * Clone or download this repo.
@@ -36,20 +38,21 @@ You may choose to subscribe to the related [podcast](https://podcasters.spotify.
 * If updating the repo, rerun the `rye sync` step.
 
 ## Usage
-Usage can be as a command-line application or as a Python library. By default, the generated mp3 file will be written to the repo directory. As of 2024, the estimated cost per generation is under $2 USD and the time taken is under three minutes.
+Usage can be as a command-line application or as a Python library. By default, the generated mp3 file will be written to the repo directory. As of 2024, the estimated cost per generation is under $2 USD, more specifically under $0.10 USD per subtopic. The time taken is under three minutes.
 
 ### Usage tips
 * If a requested topic fails to generate subtopics, try rewording it, perhaps to be broader or narrower or more factual. Alternatively, try deleting its work directory (`<repo>/work/<topic>`) and retrying its generation.
 * For a potentially longer list of covered subtopics, consider appending the "(unabridged)" suffix to the requested topic, e.g. "PyTorch (unabridged)".
+* If the topic fails to be spoken at the start of a podcast, delete `<repo>/work/<topic>/1.*.mp3` and regenerate the output.
 
 ### Usage as application
 * To show help, run `python -m podgenai -h`.
+* To require confirmations along the way, allowing for early cancelation, use `-c`. This is recommended.
 * To run for a specified topic, use `-t "My favorite topic"`. If a topic is not specified, you will interactively be prompted for it. 
 * To specify a preexisting output directory path, use `-p "/my/preexisting/dir"`.
 * To specify an output file path, use `-p "~/something.mp3"`.
-* To require confirmation after the list of subtopics are printed, but before full-text generation, use `-c`.
 
-For example, `python -m podgenai "My favorite topic" -p "~/Downloads/" -c`.
+For example, `python -m podgenai -c -t "My favorite topic" -p "~/Downloads/"`.
 
 A nonzero exitcode exists if there is an error.
 

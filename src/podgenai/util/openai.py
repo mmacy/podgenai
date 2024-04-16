@@ -18,7 +18,11 @@ OpenAI = openai.OpenAI
 
 MAX_TTS_INPUT_LEN = 4096
 MODELS = {
-    "text": "gpt-4-turbo-preview",  # Note: gpt-4 is not used because it is much older in its training data.
+    "text": "gpt-4-turbo-preview",
+    # Notes:
+    #   As of 2024-04, gpt-4-turbo-preview maps to gpt-4-0125-preview which is what the prompts were developed for.
+    #   gpt-4 is not used because it is much older in its training data.
+    #   gpt-4-turbo is not used because it was not observed to meaningfully show any relative benefit as of 2024-04, and was observed to produce slightly lesser content.
     "tts": "tts-1",  # Note: tts-1-hd is twice as expensive, and has a more limited concurrent usage quota resulting in openai.RateLimitError, thereby making it undesirable.
 }
 TTS_VOICE_MAP = {"default": "alloy", "neutral": "echo", "female": "nova", "male": "onyx"}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
@@ -41,6 +45,7 @@ def get_completion(prompt: str, *, client: Optional[OpenAI] = None) -> ChatCompl
         client = get_openai_client()
     # print(f"Requesting completion for prompt of length {len(prompt)}.")
     completion = client.chat.completions.create(model=MODELS["text"], messages=[{"role": "user", "content": prompt}])
+    # Note: Specifying max_tokens=4096 with gpt-4-turbo-preview did not benefit in increasing output length, and a higher value is disallowed. Ref: https://platform.openai.com/docs/api-reference/chat/create
     return completion
 
 
@@ -140,7 +145,7 @@ def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_pref
     assert cache_key_prefix
     assert cache_path.is_dir()
 
-    sanitized_cache_key_prefix = pathvalidate.sanitize_filepath(cache_key_prefix, platform="auto")
+    sanitized_cache_key_prefix = pathvalidate.sanitize_filename(cache_key_prefix, platform="auto")
     assert sanitized_cache_key_prefix
     cache_key = f"{sanitized_cache_key_prefix} ({strategy}) [{hasher(prompt)}].txt"
     cache_file_path = cache_path / cache_key
