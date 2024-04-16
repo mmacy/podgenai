@@ -1,5 +1,5 @@
 # podgenai
-**podgenai** is a Python 3.12 application to generate approximately an hour-long informational audiobook podcast mp3 file on a given topic using the GPT-4 LLM. A funded [OpenAI API key](https://platform.openai.com/api-keys) is required.
+**podgenai** is a Python 3.12 application to generate approximately an hour-long informational single-speaker audiobook/podcast mp3 file on a given topic using the GPT-4 LLM. A funded [OpenAI API key](https://platform.openai.com/api-keys) is required.
 
 This very much is hurriedly-written alpha software, but it is tested to work, and the used prompts have been customized to obtain reasonable results.
 
@@ -12,35 +12,66 @@ For a given topic, the high-level reference approach is:
 * The speech files are concatenated using `ffmpeg`.
 
 ## Samples
-These generated files can be downloaded from Mega. As a reminder, the voice is selected by the LLM.
+These generated mp3 files are available for download. In effect, these also constitute a minimal manual test suite, with the unique purpose of each sample noted. As a reminder, the voice is selected by the LLM.
 
-* Default voice:
-  * [PyTorch](https://mega.nz/file/0RUxwKYA#CsP_K0_f1NdJSNsMN4cx3dCWEgtttI8wMSi__kZh-mo) (2024-04-01)
-  * [Advanced PyTorch](https://mega.nz/file/EU0AyR4R#KpD5SdaMEBZBcEhH3qOPHW3fkffdrxuaPgMldNOItcU) (2024-04-01)
-  * [Machine Learning Engineering and MLOps](https://mega.nz/file/5EsSnJ6D#GIeoAG80bFCLPDjahom9L9z7BQmN6SyBhKjiT5ZtYMA) (2024-04-01)
-  * [New York City](https://mega.nz/file/kBUGEYJA#eveoiEiolXIauEwITlP7yykBvnEP9ORKOXQ8ID5k9gM) (2024-04-01)
-  * [Reverse osmosis water purification](https://mega.nz/file/JUkwiLzZ#EFsyEMVova_ifSDwOZNvSiHXCIATfzZTBKyqfE8Pe48) (2024-03-30)
-* Female voice:
-  * [Buffy the Vampire Slayer](https://mega.nz/file/0VtjQAAB#xozvkNTTbBv5VszbLLtYO8HMUrpCREhRZa5DtkjJn0U) (2024-04-01)
-* Male voice:
-  * [Bitcoin for nerds](https://mega.nz/file/VNc1hBwA#HtJ3AG8yamw6GqQYR_GRgEhSYOyaUOEpl_jEqJo0fR0) (2024-04-01)
+| Voice    | Name                                                                                                                                          | Purpose                                                               |
+|----------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| Default  | [PyTorch](https://mega.nz/file/5Ic21CZK#ovayjipDqYeYaSw9HhRTufjIxIuJr5M8lFq3LNvtEQQ)                                                          | Technical content generation                                          |
+| Default  | [Advanced PyTorch](https://mega.nz/file/kFsVxSZQ#LFrQVqH-1T1uLHNtgXrjGZYdgcyiE2FCpEu1ztZx3Ak)                                                 | Advanced technical content generation                                 |
+| Default  | [New York City: present and future](https://mega.nz/file/9c0FxCaa#4oCBgys1--x2iJKjwbb-gUFOaMCkXoBNYV6AMo790H0)                                | Non-technical content generation                                      |
+| Default  | [Artificial General Intelligence (AGI): Approaches and Algorithms](https://mega.nz/file/0JkWnDQQ#PSUA5aj0q_yU18T4XsazYZoSG9bqjUi7vCLmjVrY1IA) | Non-hierarchical flattened single-level subtopic list enforcement     |
+| Female   | [Human circulatory system (unabridged)](https://mega.nz/file/UYt2WLDA#4q-UI8cWffzN0PG8ZGiQK_96dudklBJOfFmpE_3for4)                            | Implicit topic support for unabridged suffix, covering more subtopics |
+| Female   | [Buffy the Vampire Slayer](https://mega.nz/file/FddQWRJb#q_3XoTfgsQIvU6oZcJK7Y9or4Tjcx7BK2YLf_whjH4g)                                         | Female voice selection                                                |
+| Male     | [Bitcoin for nerds](https://mega.nz/file/QVNyWYrZ#RqKuAcG6LUwOZi20ZBkygRNin9f7rpLBm1xsoILoAFI)                                                | Male voice selection                                                  |
 
+You may choose to subscribe to the related [podcast](https://podcasters.spotify.com/pod/podgenai) to which episodes on additional topics may be manually posted over time.
 
 ## Setup
-* Install [`rye`](https://rye-up.com/).
-* Clone the repo.
-* Run `rye sync` in the repo directory.
-* Create a file named `.env` in the repo directory, with the intended environment variable `OPENAI_API_KEY=<your OpenAI API key>`, or set it in a different way.
+* Ensure that [`rye`](https://rye-up.com/) is installed and available.
+* Clone or download this repo.
+* In the repo directory, run `rye sync` or more narrowly just `rye sync --no-lock` if on Linux.
+* In the repo directory, create a file named `.env`, with the intended environment variable `OPENAI_API_KEY=<your OpenAI API key>`, or set it in a different way.
+* Optionally set the environment variable `PODGENAI_OPENAI_MAX_WORKERS=32` for faster generation, with its default value being 16.
 * Ensure that `ffmpeg` is available.
-* If updating the repo, rerun `rye sync`.
+* If updating the repo, rerun the `rye sync` step.
 
 ## Usage
-Interactively run `rye run podgenai` or `python -m podgenai`. You will be prompted for a topic of your choice.
-The generated mp3 file will be written to the repo directory. As of 2024, the estimated cost per generation is under $2 USD and the time taken is under three minutes. 
+Usage can be as a command-line application or as a Python library. By default, the generated mp3 file will be written to the repo directory. As of 2024, the estimated cost per generation is under $2 USD and the time taken is under three minutes.
+
+### Usage tips
+* If a requested topic fails to generate subtopics, try rewording it, perhaps to be broader or narrower or more factual. Alternatively, try deleting its work directory (`<repo>/work/<topic>`) and retrying its generation.
+* For a potentially longer list of covered subtopics, consider appending the "(unabridged)" suffix to the requested topic, e.g. "PyTorch (unabridged)".
+
+### Usage as application
+* To show help, run `python -m podgenai -h`.
+* To run for a specified topic, use `-t "My favorite topic"`. If a topic is not specified, you will interactively be prompted for it. 
+* To specify a preexisting output directory path, use `-p "/my/preexisting/dir"`.
+* To specify an output file path, use `-p "~/something.mp3"`.
+* To require confirmation after the list of subtopics are printed, but before full-text generation, use `-c`.
+
+For example, `python -m podgenai "My favorite topic" -p "~/Downloads/" -c`.
+
+A nonzero exitcode exists if there is an error.
+
+### Usage as library
+This package is not available on PyPI due to its unpolished nature, but it can nevertheless be called as a library. The output file path is returned. If failed, a subclass of the `podgenai.exceptions.Error` exception is raised.
+
+```python
+from pathlib import Path
+from podgenai import generate_media
+
+# With default output path:
+output_file_path = generate_media("My favorite topic")
+
+# With preexisting output directory path:
+output_file_path = generate_media("My favorite topic", output_path=Path('/tmp'))
+
+# With output file path:
+output_file_path = generate_media("My favorite topic", output_path=Path('~/foo.mp3'))
+```
 
 ## Caching
-* Text outputs are cached locally for four weeks in the `.diskcache` subdirectory.
-* Audio segments are currently cached locally by the segment name in the `work` subdirectory. They can manually be deleted. This deletion is currently not automatic. Moreover, it can currently be necessary to delete them if the cache is to be bypassed.
+Text and speech segments are cached locally on disk in the `<repo>/work/<topic>` directory. They can manually be deleted. This deletion is currently not automatic. Moreover, it can currently be necessary to delete one or more applicable cached files if the cache is to be bypassed.
 
 ## Disclaimer
 <sub>This software is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.</sub>
