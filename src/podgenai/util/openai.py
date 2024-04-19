@@ -25,13 +25,20 @@ MODELS = {
     #   gpt-4-turbo is not used because it was observed to produce slightly lesser content than gpt-4-turbo-preview.
     "tts": "tts-1",  # Note: tts-1-hd is twice as expensive, and has a more limited concurrent usage quota resulting in openai.RateLimitError, thereby making it undesirable.
 }
-TTS_VOICE_MAP = {"default": "nova", "neutral": "nova", "female": "nova", "male": "nova"}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
+TTS_VOICE_MAP = {
+    "default": "nova",
+    "neutral": "nova",
+    "female": "nova",
+    "male": "nova",
+}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
 
 
 def ensure_openai_key() -> None:
     """Raise `EnvError` if the environment variable OPENAI_API_KEY is unavailable."""
     if not os.environ.get("OPENAI_API_KEY"):
-        raise podgenai.exceptions.EnvError("The environment variable OPENAI_API_KEY is unavailable. It can optionally be defined in an .env file.")
+        raise podgenai.exceptions.EnvError(
+            "The environment variable OPENAI_API_KEY is unavailable. It can optionally be defined in an .env file."
+        )
 
 
 def get_openai_client() -> OpenAI:
@@ -44,12 +51,21 @@ def get_completion(prompt: str, *, client: Optional[OpenAI] = None) -> ChatCompl
     if not client:
         client = get_openai_client()
     # print(f"Requesting completion for prompt of length {len(prompt)}.")
-    completion = client.chat.completions.create(model=MODELS["text"], messages=[{"role": "user", "content": prompt}])
+    completion = client.chat.completions.create(
+        model=MODELS["text"], messages=[{"role": "user", "content": prompt}]
+    )
     # Note: Specifying max_tokens=4096 with gpt-4-turbo-preview did not benefit in increasing output length, and a higher value is disallowed. Ref: https://platform.openai.com/docs/api-reference/chat/create
     return completion
 
 
-def get_multipart_messages(prompt: str, *, max_completions: int = 10, client: Optional[OpenAI] = None, update_prompt: bool = False, continuation: str = PROMPTS["continuation_next"]) -> list[dict]:
+def get_multipart_messages(
+    prompt: str,
+    *,
+    max_completions: int = 10,
+    client: Optional[OpenAI] = None,
+    update_prompt: bool = False,
+    continuation: str = PROMPTS["continuation_next"],
+) -> list[dict]:
     """Return the multipart completion messages for the given initial prompt.
 
     After the initial completion, continuation prompts are subsequently given, either until the assistant is done, or until a maximum of `max_completions` are received, whichever is first.
@@ -69,7 +85,9 @@ def get_multipart_messages(prompt: str, *, max_completions: int = 10, client: Op
     messages = [{"role": "user", "content": prompt}]
     for completion_num in range(1, max_completions + 1):
         # print(f"Requesting completion {completion_num} for initial prompt of length {len(prompt)}.")
-        completion = client.chat.completions.create(model=MODELS["text"], messages=messages)
+        completion = client.chat.completions.create(
+            model=MODELS["text"], messages=messages
+        )
         content = get_content(prompt="", completion=completion)
         messages.append({"role": "assistant", "content": content})
 
@@ -83,7 +101,9 @@ def get_multipart_messages(prompt: str, *, max_completions: int = 10, client: Op
                     return messages
 
         if completion_num == max_completions:
-            print_warning(f"The quota of a maximum of {max_completions} completions is exhausted for initial prompt of length {len(prompt)}.")
+            print_warning(
+                f"The quota of a maximum of {max_completions} completions is exhausted for initial prompt of length {len(prompt)}."
+            )
             return messages
 
         messages.append({"role": "user", "content": continuation})
@@ -91,7 +111,12 @@ def get_multipart_messages(prompt: str, *, max_completions: int = 10, client: Op
     assert False
 
 
-def get_content(prompt: str, *, client: Optional[OpenAI] = None, completion: Optional[ChatCompletion] = None) -> str:
+def get_content(
+    prompt: str,
+    *,
+    client: Optional[OpenAI] = None,
+    completion: Optional[ChatCompletion] = None,
+) -> str:
     """Return the content for the given prompt."""
     if not completion:
         completion = get_completion(prompt, client=client)
@@ -118,7 +143,12 @@ def get_multipart_content(prompt: str, **kwargs) -> str:
         completion = message["content"]
         assert completion == completion.strip()
         if completion in endings:
-            assert message_count == len(messages), {"prompt": prompt, "messages": messages, "message_count": message_count, "completion": completion}
+            assert message_count == len(messages), {
+                "prompt": prompt,
+                "messages": messages,
+                "message_count": message_count,
+                "completion": completion,
+            }
             break
         for ending in endings:
             if completion.endswith((f" {ending}", f"\n{ending}")):
@@ -129,7 +159,14 @@ def get_multipart_content(prompt: str, **kwargs) -> str:
     return "\n\n".join(completions).strip()
 
 
-def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_prefix: str, cache_path: Path, **kwargs) -> str:
+def get_cached_content(
+    prompt: str,
+    *,
+    strategy: str = "oneshot",
+    cache_key_prefix: str,
+    cache_path: Path,
+    **kwargs,
+) -> str:
     """Return the content for the given prompt using the disk cache if available, otherwise normally.
 
     Params:
@@ -145,7 +182,9 @@ def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_pref
     assert cache_key_prefix
     assert cache_path.is_dir()
 
-    sanitized_cache_key_prefix = pathvalidate.sanitize_filename(cache_key_prefix, platform="auto")
+    sanitized_cache_key_prefix = pathvalidate.sanitize_filename(
+        cache_key_prefix, platform="auto"
+    )
     assert sanitized_cache_key_prefix
     cache_key = f"{sanitized_cache_key_prefix} ({strategy}) [{hasher(prompt)}].txt"
     cache_file_path = cache_path / cache_key
@@ -153,10 +192,14 @@ def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_pref
 
     if cache_file_path.exists():
         assert cache_file_path.is_file()
-        content = cache_file_path.read_text().rstrip()  # rstrip is used in case the file is manually modified in an editor which adds a trailing newline.
+        content = (
+            cache_file_path.read_text().rstrip()
+        )  # rstrip is used in case the file is manually modified in an editor which adds a trailing newline.
         print(f"Read completion from disk for: {cache_key_prefix}")
     else:
-        content_getter = {"oneshot": get_content, "multishot": get_multipart_content}[strategy]
+        content_getter = {"oneshot": get_content, "multishot": get_multipart_content}[
+            strategy
+        ]
         print(f"Requesting completion for: {cache_key_prefix}")
         content = content_getter(prompt, **kwargs)
         print(f"Received completion for: {cache_key_prefix}")
@@ -166,7 +209,9 @@ def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_pref
     return content
 
 
-def write_speech_audio(text: str, path: Path, *, voice: str = "default", client: Optional[OpenAI] = None) -> None:
+def write_speech_audio(
+    text: str, path: Path, *, voice: str = "default", client: Optional[OpenAI] = None
+) -> None:
     """Write the speech audio file for the given prompt to the given file path.
 
     The prompt must not be longer than 4096 characters, as this is the maximum supported length by the client.
@@ -181,7 +226,9 @@ def write_speech_audio(text: str, path: Path, *, voice: str = "default", client:
     voice_str = voice if (voice == mapped_voice) else f"{voice} ({mapped_voice})"
 
     print(f"Requesting speech audio in {voice_str} voice for: {path.stem}")
-    response = client.audio.speech.create(model=MODELS["tts"], voice=mapped_voice, input=text)
+    response = client.audio.speech.create(
+        model=MODELS["tts"], voice=mapped_voice, input=text
+    )
     # relative_path = path.relative_to(Path.cwd())
     # print(f"Writing speech to: {relative_path}")
     response.stream_to_file(path)
