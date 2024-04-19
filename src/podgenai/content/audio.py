@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from pathlib import Path
 import subprocess
 from typing import Optional
@@ -9,11 +9,25 @@ from podgenai.config import REPO_PATH
 from podgenai.work import get_topic_work_path
 
 
+def get_timestamp() -> str:
+    """Generate a timestamp in the format YYYYMMDD-HHMMSS.
+
+    Returns:
+        str: The formatted timestamp.
+    """
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    return timestamp
+
+
 def get_default_output_filename(topic: str) -> str:
     """Return the default output filename for the given topic."""
-    now = datetime.datetime.now().isoformat(timespec="seconds")
-    output_filename = f"{now} {topic}.mp3"
-    output_filename = pathvalidate.sanitize_filename(output_filename, platform="auto")
+    timestamp = get_timestamp()
+    output_filename = f"{timestamp}_{topic}.mp3"
+    output_filename = pathvalidate.sanitize_filename(
+        output_filename, platform="auto", replacement_text="_"
+    )
+    output_filename = output_filename.replace(" ", "_")
     return output_filename
 
 
@@ -42,6 +56,23 @@ def merge_speech_paths(paths: list[Path], *, topic: str, output_path: Path) -> N
     ffmpeg_filelist_path = work_path / "ffmpeg.list"
     ffmpeg_filelist_path.write_text("\n".join(f"file '{p}'" for p in ffmpeg_paths))
     print(f"Merging {len(paths)} speech parts.")
-    subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(ffmpeg_filelist_path), "-c", "copy", "-loglevel", "error", str(output_path)], check=True)
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(ffmpeg_filelist_path),
+            "-c",
+            "copy",
+            "-loglevel",
+            "error",
+            str(output_path),
+        ],
+        check=True,
+    )
     assert output_path.exists()
     print(f"Merged {len(paths)} speech parts.")
