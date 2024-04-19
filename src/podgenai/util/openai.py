@@ -25,7 +25,7 @@ MODELS = {
     #   gpt-4-turbo is not used because it was not observed to meaningfully show any relative benefit as of 2024-04, and was observed to produce slightly lesser content.
     "tts": "tts-1",  # Note: tts-1-hd is twice as expensive, and has a more limited concurrent usage quota resulting in openai.RateLimitError, thereby making it undesirable.
 }
-TTS_VOICE_MAP = {"default": "alloy", "neutral": "echo", "female": "nova", "male": "onyx"}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
+TTS_VOICE_MAP = {"default": "nova", "neutral": "nova", "female": "nova", "male": "nova"}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
 
 
 def ensure_openai_key() -> None:
