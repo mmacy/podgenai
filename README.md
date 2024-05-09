@@ -5,7 +5,7 @@
 The `gpt-4-0125-preview` and `tts-1` models are used. For a given topic, the high-level reference approach is:
 
 * Applicable subtopics are listed using the LLM. If however the topic is unknown to the LLM, the process is aborted.
-* The voice is selected using the LLM from three choices.
+* The voice is selected using the LLM from four choices.
 * Concurrently for each subtopic, the corresponding text and speech are generated using the LLM and TTS respectively.
 * The speech files are concatenated using `ffmpeg`.
 
@@ -18,15 +18,17 @@ There is also a related [podcast](https://podcasters.spotify.com/pod/podgenai) (
 
 A playback speed of 1.05x is recommended for most topics.
 
-| Voice    | Name                                                                                                                                          | Purpose                                                               |
-|----------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| Default  | [PyTorch](https://mega.nz/file/5Ic21CZK#ovayjipDqYeYaSw9HhRTufjIxIuJr5M8lFq3LNvtEQQ)                                                          | Technical content generation                                          |
-| Default  | [Advanced PyTorch](https://mega.nz/file/kFsVxSZQ#LFrQVqH-1T1uLHNtgXrjGZYdgcyiE2FCpEu1ztZx3Ak)                                                 | Advanced technical content generation                                 |
-| Default  | [New York City: present and future](https://mega.nz/file/9c0FxCaa#4oCBgys1--x2iJKjwbb-gUFOaMCkXoBNYV6AMo790H0)                                | Non-technical content generation                                      |
-| Default  | [Artificial General Intelligence (AGI): Approaches and Algorithms](https://mega.nz/file/0JkWnDQQ#PSUA5aj0q_yU18T4XsazYZoSG9bqjUi7vCLmjVrY1IA) | Non-hierarchical flattened single-level subtopic list enforcement     |
-| Female   | [Human circulatory system (unabridged)](https://mega.nz/file/UYt2WLDA#4q-UI8cWffzN0PG8ZGiQK_96dudklBJOfFmpE_3for4)                            | Implicit topic support for unabridged suffix, covering more subtopics |
-| Female   | [Buffy the Vampire Slayer](https://mega.nz/file/FddQWRJb#q_3XoTfgsQIvU6oZcJK7Y9or4Tjcx7BK2YLf_whjH4g)                                         | Female voice selection                                                |
-| Male     | [Bitcoin for nerds](https://mega.nz/file/QVNyWYrZ#RqKuAcG6LUwOZi20ZBkygRNin9f7rpLBm1xsoILoAFI)                                                | Male voice selection                                                  |
+| Voice   | Name                                                                                                                                          | Purpose                                                           |
+|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| Default | [PyTorch](https://mega.nz/file/5Ic21CZK#ovayjipDqYeYaSw9HhRTufjIxIuJr5M8lFq3LNvtEQQ)                                                          | Technical content generation                                      |
+| Default | [Advanced PyTorch](https://mega.nz/file/kFsVxSZQ#LFrQVqH-1T1uLHNtgXrjGZYdgcyiE2FCpEu1ztZx3Ak)                                                 | Advanced technical content generation                             |
+| Default | [Software engineer job interview tips](https://mega.nz/file/RYtUHboC#Vf6qT_nU3ncXSymHkfmbg4jcg0CHvj020ixmS5pYlxY)                             | Default voice selection                                           |
+| Emotive | [New York City: present and future](https://mega.nz/file/gEcBERqL#LCdkwFMCt2L1PdQLpD-6-BZ8VrvalTlZwqrSzNEw5Cc)                                | Non-technical content generation                                  |
+| Emotive | [Living a good life](https://mega.nz/file/NNMUFTJT#8ga2REaZaT79-zf83KqBT2tUW8Q8j5sT0WAuxQUEpQ8)                                               | Emotive voice selection                                           |
+| Default | [Artificial General Intelligence (AGI): Approaches and Algorithms](https://mega.nz/file/0JkWnDQQ#PSUA5aj0q_yU18T4XsazYZoSG9bqjUi7vCLmjVrY1IA) | Non-hierarchical flattened single-level subtopic list enforcement |
+| Female  | [Human circulatory system (unabridged)](https://mega.nz/file/UYt2WLDA#4q-UI8cWffzN0PG8ZGiQK_96dudklBJOfFmpE_3for4)                            | Implicit topic support for unabridged suffix                      |
+| Female  | [Buffy the Vampire Slayer](https://mega.nz/file/FddQWRJb#q_3XoTfgsQIvU6oZcJK7Y9or4Tjcx7BK2YLf_whjH4g)                                         | Female voice selection                                            |
+| Male    | [Bitcoin for nerds](https://mega.nz/file/QVNyWYrZ#RqKuAcG6LUwOZi20ZBkygRNin9f7rpLBm1xsoILoAFI)                                                | Male voice selection                                              |
 
 ## Setup
 * Ensure that [`rye`](https://rye-up.com/) is installed and available.
@@ -44,6 +46,7 @@ Usage can be as a command-line application or as a Python library. By default, t
 * If a requested topic fails to generate subtopics, try rewording it, perhaps to be broader or narrower or more factual. Alternatively, try deleting its work directory (`<repo>/work/<topic>`) and retrying its generation.
 * For a potentially longer list of covered subtopics, consider appending the "(unabridged)" suffix to the requested topic, e.g. "PyTorch (unabridged)".
 * If the topic fails to be spoken at the start of a podcast, delete `<repo>/work/<topic>/1.*.mp3` and regenerate the output.
+* To optionally generate a cover art image for your topic, [this custom GPT](https://chat.openai.com/g/g-SvmRhBwX1-podcast-episode-cover-art) can be used.
 
 ### Usage as application
 * To show help, run `python -m podgenai -h`.
