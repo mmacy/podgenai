@@ -18,14 +18,13 @@ OpenAI = openai.OpenAI
 
 MAX_TTS_INPUT_LEN = 4096
 MODELS = {
-    "text": "gpt-4-turbo-preview",
+    "text": "gpt-4-0125-preview",
     # Notes:
-    #   As of 2024-04, gpt-4-turbo-preview maps to gpt-4-0125-preview which is what the prompts were developed for.
+    #   As of 2024-04, gpt-4-turbo (gpt-4-turbo-2024-04-09) is not used because it was observed to produce slightly lesser content than gpt-4-turbo-preview (gpt-4-0125-preview).
     #   gpt-4 is not used because it is much older in its training data.
-    #   gpt-4-turbo is not used because it was not observed to meaningfully show any relative benefit as of 2024-04, and was observed to produce slightly lesser content.
     "tts": "tts-1",  # Note: tts-1-hd is twice as expensive, and has a more limited concurrent usage quota resulting in openai.RateLimitError, thereby making it undesirable.
 }
-TTS_VOICE_MAP = {"default": "alloy", "neutral": "echo", "female": "nova", "male": "onyx"}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
+TTS_VOICE_MAP = {"default": "alloy", "neutral": "alloy", "female": "nova", "male": "onyx", "emotive": "echo"}  # Note: An unsolicited 'neutral' response has been observed, and is therefore supported.
 
 
 def ensure_openai_key() -> None:
