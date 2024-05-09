@@ -8,11 +8,10 @@ For your information, in a subsequent step, I will myself coherently merge the g
 
 The topic for the podcast is: {topic}
 
-For your reference, the full list of intended numbered points for the podcast is:
+Here is the full list of segments for your reference:
 
 {subtopics}
 
-
-The current specific topic on which you are to expound upon at significant length is:
+Please focus on the following segment for detailed development:
 
 {numbered_subtopic}
