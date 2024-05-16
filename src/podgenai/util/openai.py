@@ -18,7 +18,7 @@ OpenAI = openai.OpenAI
 
 MAX_TTS_INPUT_LEN = 4096
 MODELS = {
-    "text": "gpt-4-0125-preview",
+    "text": "gpt-4o", #"gpt-4-0125-preview",
     # Notes:
     #   As of 2024-04, gpt-4-turbo (gpt-4-turbo-2024-04-09) is not used because it was observed to produce slightly lesser content than gpt-4-turbo-preview (gpt-4-0125-preview).
     #   gpt-4 is not used because it is much older in its training data.
