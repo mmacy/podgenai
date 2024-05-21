@@ -1,6 +1,15 @@
 # podgenai
 **podgenai** is a Python 3.12 application to generate approximately an hour-long informational single-speaker audiobook/podcast mp3 file on a given topic using the GPT-4 LLM. A funded [OpenAI API key](https://platform.openai.com/api-keys) is required.
 
+## Links
+| Caption     | Link                                               |
+|-------------|----------------------------------------------------|
+| Repo        | https://github.com/impredicative/podgenai          |
+| Changelog   | https://github.com/impredicative/podgenai/releases |
+| Package     | https://pypi.org/project/podgenai/                 |
+| Podcast     | https://podcasters.spotify.com/pod/podgenai        |
+| Podcast RSS | https://anchor.fm/s/f4868644/podcast/rss           |
+
 ## Approach
 The `gpt-4-0125-preview` and `tts-1` models are used. For a given topic, the high-level reference approach is:
 
@@ -31,21 +40,32 @@ A playback speed of 1.05x is recommended for most topics.
 | Male    | [Bitcoin for nerds](https://mega.nz/file/QVNyWYrZ#RqKuAcG6LUwOZi20ZBkygRNin9f7rpLBm1xsoILoAFI)                                                | Male voice selection                                              |
 
 ## Setup
+
+### Common setup
+* In the working directory, create a file named `.env`, with the intended environment variable `OPENAI_API_KEY=<your OpenAI API key>`, or set it in a different way.
+* Optionally set the environment variable `PODGENAI_OPENAI_MAX_WORKERS=32` for faster generation, with its default value being 16.
+* Ensure that `ffmpeg` is available.
+* Continue the setup via GitHub or PyPI as below.
+
+### Setup via GitHub
+* Continue from the common setup steps.
 * Ensure that [`rye`](https://rye-up.com/) is installed and available.
 * Clone or download this repo.
 * In the repo directory, run `rye sync` or more narrowly just `rye sync --no-lock` if on Linux.
-* In the repo directory, create a file named `.env`, with the intended environment variable `OPENAI_API_KEY=<your OpenAI API key>`, or set it in a different way.
-* Optionally set the environment variable `PODGENAI_OPENAI_MAX_WORKERS=32` for faster generation, with its default value being 16.
-* Ensure that `ffmpeg` is available.
 * If updating the repo, rerun the `rye sync` step.
 
+### Setup via PyPI
+* Continue from the common setup steps.
+* Create and activate a Python 3.12 virtual environment.
+* Install via [PyPI](https://pypi.org/project/podgenai/): `pip install -U podgenai`.
+
 ## Usage
-Usage can be as a command-line application or as a Python library. By default, the generated mp3 file will be written to the repo directory. As of 2024, the estimated cost per generation is under $2 USD, more specifically under $0.10 USD per subtopic. The time taken is under three minutes.
+Usage can be as a command-line application or as a Python library. By default, the generated mp3 file will be written to the current working directory. As of 2024, the estimated cost per generation is under 2 USD, more specifically under 0.10 USD per subtopic. The time taken is under three minutes.
 
 ### Usage tips
-* If a requested topic fails to generate subtopics, try rewording it, perhaps to be broader or narrower or more factual. Alternatively, try deleting its work directory (`<repo>/work/<topic>`) and retrying its generation.
+* If a requested topic fails to generate subtopics, try rewording it, perhaps to be broader or narrower or more factual. Up to two attempts are made per run, although the first attempt will reuse the disk cache if available.
 * For a potentially longer list of covered subtopics, consider appending the "(unabridged)" suffix to the requested topic, e.g. "PyTorch (unabridged)".
-* If the topic fails to be spoken at the start of a podcast, delete `<repo>/work/<topic>/1.*.mp3` and regenerate the output.
+* In case the topic fails to be spoken at the start of a podcast, delete `./work/<topic>/1.*.mp3` and regenerate the output.
 * To optionally generate a cover art image for your topic, [this custom GPT](https://chat.openai.com/g/g-SvmRhBwX1-podcast-episode-cover-art) can be used.
 
 ### Usage as application
@@ -60,7 +80,7 @@ For example, `python -m podgenai -c -t "My favorite topic" -p "~/Downloads/"`.
 A nonzero exitcode exists if there is an error.
 
 ### Usage as library
-This package is not available on PyPI due to its unpolished nature, but it can nevertheless be called as a library. The output file path is returned. If failed, a subclass of the `podgenai.exceptions.Error` exception is raised.
+When called as a function, the output file path is returned. If it fails, a subclass of the `podgenai.exceptions.Error` exception is raised.
 
 ```python
 from pathlib import Path
@@ -77,7 +97,7 @@ output_file_path = generate_media("My favorite topic", output_path=Path('~/foo.m
 ```
 
 ## Caching
-Text and speech segments are cached locally on disk in the `<repo>/work/<topic>` directory. They can manually be deleted. This deletion is currently not automatic. Moreover, it can currently be necessary to delete one or more applicable cached files if the cache is to be bypassed.
+Text and speech segments are cached locally on disk in the `./work/<topic>` directory. They can manually be deleted. This deletion is currently not automatic. Moreover, it can currently be necessary to delete one or more applicable cached files if the cache is to be bypassed.
 
 ## Disclaimer
 <sub>This software is provided "as is," without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.</sub>

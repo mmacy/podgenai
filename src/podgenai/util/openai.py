@@ -20,6 +20,7 @@ MAX_TTS_INPUT_LEN = 4096
 MODELS = {
     "text": "gpt-4-0125-preview",
     # Notes:
+    #   As of 2024-05, gpt-4o (gpt-4o-2024-05-13) is not used because it was observed to hallucinate significantly, whereas gpt-4-turbo-preview (gpt-4-0125-preview) doesn't.
     #   As of 2024-04, gpt-4-turbo (gpt-4-turbo-2024-04-09) is not used because it was observed to produce slightly lesser content than gpt-4-turbo-preview (gpt-4-0125-preview).
     #   gpt-4 is not used because it is much older in its training data.
     "tts": "tts-1",  # Note: tts-1-hd is twice as expensive, and has a more limited concurrent usage quota resulting in openai.RateLimitError, thereby making it undesirable.
@@ -128,13 +129,14 @@ def get_multipart_content(prompt: str, **kwargs) -> str:
     return "\n\n".join(completions).strip()
 
 
-def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_prefix: str, cache_path: Path, **kwargs) -> str:
+def get_cached_content(prompt: str, *, strategy: str = "oneshot", read_cache: bool = True, cache_key_prefix: str, cache_path: Path, **kwargs) -> str:
     """Return the content for the given prompt using the disk cache if available, otherwise normally.
 
     Params:
     * `strategy`:
         If `strategy` is 'oneshot', the assistant is requested only one output, which is usually sufficient.
         If `strategy` is 'multishot', the assistant is permitted multiple outputs up to a limit.
+    * `read_cache`: If `True`, the disk cache is read if available. If `False`, the disk cache is not read, and it will be written or overwritten.
     * `cache_key_prefix`: Friendly identifying name of request, used in filename in cache directory. Deduplication by prompt is done by this function; it does not have to be done externally.
     * `cache_path`: Cache directory.
 
@@ -150,7 +152,7 @@ def get_cached_content(prompt: str, *, strategy: str = "oneshot", cache_key_pref
     cache_file_path = cache_path / cache_key
     pathvalidate.validate_filepath(cache_file_path, platform="auto")
 
-    if cache_file_path.exists():
+    if read_cache and cache_file_path.exists():
         assert cache_file_path.is_file()
         content = cache_file_path.read_text().rstrip()  # rstrip is used in case the file is manually modified in an editor which adds a trailing newline.
         print(f"Read completion from disk for: {cache_key_prefix}")
