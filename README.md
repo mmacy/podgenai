@@ -43,20 +43,24 @@ A playback speed of 1.05x is recommended for most topics.
 
 ### Common setup
 * In the working directory, create a file named `.env`, with the intended environment variable `OPENAI_API_KEY=<your OpenAI API key>`, or set it in a different way.
-* Optionally set the environment variable `PODGENAI_OPENAI_MAX_WORKERS=32` for faster generation, with its default value being 16.
-* Ensure that `ffmpeg` is available.
+* Optionally also set the environment variable `PODGENAI_OPENAI_MAX_WORKERS=32` for faster generation, with its default value being 16.
+* Ensure that `ffmpeg` is available. This is automatic if using the included devcontainer definition.
 * Continue the setup via GitHub or PyPI as below.
 
-### Setup via GitHub
+### Setup via GitHub using devcontainer
 * Continue from the common setup steps.
-* Ensure that [`rye`](https://rye-up.com/) is installed and available.
 * Clone or download this repo.
-* In the repo directory, run `rye sync` or more narrowly just `rye sync --no-lock` if on Linux.
-* If updating the repo, rerun the `rye sync` step.
+* Build and provision the defined devcontainer.
+
+### Setup via GitHub manually
+* Continue from the common setup steps.
+* Clone or download this repo.
+* Ensure that [`rye`](https://rye-up.com/) is installed and available.
+* In the repo directory, run `rye sync --no-lock`.
 
 ### Setup via PyPI
 * Continue from the common setup steps.
-* Create and activate a Python 3.12 virtual environment.
+* Create and activate a Python 3.12 devcontainer or virtual environment.
 * Install via [PyPI](https://pypi.org/project/podgenai/): `pip install -U podgenai`.
 
 ## Usage
@@ -70,12 +74,12 @@ Usage can be as a command-line application or as a Python library. By default, t
 
 ### Usage as application
 * To show help, run `python -m podgenai -h`.
-* To require confirmations along the way, allowing for early cancelation, use `-c`. This is recommended.
-* To run for a specified topic, use `-t "My favorite topic"`. If a topic is not specified, you will interactively be prompted for it. 
+* To run for a specified topic, use `-t "My favorite topic"`. If a topic is not specified, you will interactively be prompted for it.
+* By default, in command-line mode, confirmations are required as the generation progresses, thereby allowing for early cancelation and for tuning the input title. To skip requiring confirmations, use `-c False`.
 * To specify a preexisting output directory path, use `-p "/my/preexisting/dir"`.
 * To specify an output file path, use `-p "~/something.mp3"`.
 
-For example, `python -m podgenai -c -t "My favorite topic" -p "~/Downloads/"`.
+For example, `python -m podgenai -t "My favorite topic" -p "~/Downloads/"`.
 
 A nonzero exitcode exists if there is an error.
 

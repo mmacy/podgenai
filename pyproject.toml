@@ -1,6 +1,6 @@
 [project]
 name = "podgenai"
-version = "0.2.1"
+version = "0.4.0"
 description = "GPT-4 based informational audiobook/podcast mp3 generator"
 authors = [
     { name = "Ouroboros Chrysopoeia", email = "impredicative@users.noreply.github.com" }
@@ -49,6 +49,7 @@ syncup = "rye sync --update-all"
 build = "rye build --clean --verbose"
 publish = "rye publish --verbose"
 release = { chain = ["check", "build", "publish"]}
+describe = "python ./scripts/print_cached_episode_description.py"
 
 [tool.hatch.build]
 exclude = [".env", "archive/", "docs/", "scripts/", "work/"]

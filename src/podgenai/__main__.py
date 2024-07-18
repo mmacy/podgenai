@@ -11,7 +11,7 @@ from podgenai.util.openai import ensure_openai_key
 from podgenai.util.sys import print_error
 
 
-def main(topic: Optional[str] = None, path: Optional[Path] = None, confirm: bool = False) -> None:
+def main(topic: Optional[str] = None, path: Optional[Path] = None, confirm: bool = True) -> None:
     """Generate and write an audiobook podcast mp3 file for the given topic to the given output file path.
 
     Params:
@@ -19,8 +19,9 @@ def main(topic: Optional[str] = None, path: Optional[Path] = None, confirm: bool
     * `path (-p)`: Output file or directory path.
         If an intended file path, it must have an ".mp3" suffix. If a directory, it must exist, and the file name is auto-determined.
         If not given, the output file is written to the repo directory with an auto-determined file name.
-    * `confirm`: Confirm before full-text and speech generation.
-        If true, a confirmation is interactively sought after generating and printing the list of subtopics, before generating the full-text, and also before generating the speech. Its default is false.
+    * `confirm (-c)`: Confirm before full-text and speech generation.
+        If `True`, a confirmation is interactively sought after generating and printing the list of subtopics, before generating the full-text, and also before generating the speech. Its default is `True`.
+        If `False`, the full-text and speech are generated without confirmations.
 
     A nonzero exitcode exists if there is an error.
     """
@@ -35,7 +36,7 @@ def main(topic: Optional[str] = None, path: Optional[Path] = None, confirm: bool
             path = Path(path)
 
         if not isinstance(confirm, bool):
-            raise podgenai.exceptions.InputError("`confirm` (-c) argument has an invalid value. No value is to explicitly be specified for it since it is a boolean.")
+            raise podgenai.exceptions.InputError(f"`confirm` (-c) argument has an invalid value {confirm!r} of type {type(confirm)}. Its value, if specified, is required to be a boolean.")
 
         generate_media(topic, output_path=path, confirm=confirm)
     except podgenai.exceptions.Error as exc:
