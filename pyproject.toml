@@ -1,16 +1,16 @@
 [project]
 name = "podgenai"
-version = "0.4.0"
+version = "0.5.1"
 description = "GPT-4 based informational audiobook/podcast mp3 generator"
 authors = [
     { name = "Ouroboros Chrysopoeia", email = "impredicative@users.noreply.github.com" }
 ]
 dependencies = [
-    "fire>=0.6.0",
-    "openai>=1.27.0",
+    "click>=8.1.7",
+    "openai>=1.41.1",
     "pathvalidate>=3.2.0",
     "python-dotenv>=1.0.1",
-    "semantic-text-splitter>=0.13.1",
+    "semantic-text-splitter>=0.15.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
@@ -36,6 +36,7 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = []
+universal = true
 
 [tool.rye.scripts]  # Run as "rye run <command>"
 check = { chain = ["check-lint", "check-fmt" ] }
@@ -61,7 +62,7 @@ allow-direct-references = true
 packages = ["src/podgenai"]
 
 [tool.ruff]
-line-length = 200
+line-length = 320
 
 [tool.ruff.lint]
 ignore = ["E731"]
