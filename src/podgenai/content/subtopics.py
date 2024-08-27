@@ -7,7 +7,7 @@ import podgenai.exceptions
 from podgenai.config import MAX_CONCURRENT_WORKERS, PROMPTS
 from podgenai.util.openai import get_cached_content
 from podgenai.work import get_topic_work_path
-from podgenai.util.sys import print_error
+from podgenai.util.sys import print_error, print_warning
 
 
 def is_subtopics_list_valid(subtopics: list[str]) -> bool:
@@ -58,6 +58,7 @@ def list_subtopics(topic: str, max_attempts: int = 2) -> list[str]:
     prompt_name = "list_subtopics"
     prompt = PROMPTS[prompt_name].format(topic=topic)
     none_subtopics = ("none", "none.")
+    invalid_subtopics = ("", *none_subtopics)
 
     for num_attempt in range(1, max_attempts + 1):
         subtopics = get_cached_content(prompt, read_cache=num_attempt == 1, cache_key_prefix=f"0. {prompt_name}", cache_path=get_topic_work_path(topic))
@@ -66,20 +67,28 @@ def list_subtopics(topic: str, max_attempts: int = 2) -> list[str]:
         if subtopics.lower() in none_subtopics:
             if num_attempt == max_attempts:
                 raise podgenai.exceptions.LanguageModelOutputError(f"No subtopics exist after {max_attempts} attempts for topic: {topic}")
-        else:
-            break
+            else:
+                continue
 
-    assert subtopics.lower() not in none_subtopics
-    invalid_subtopics = ("", *none_subtopics)
-    subtopics = [s.strip() for s in subtopics.splitlines() if s.strip().lower() not in invalid_subtopics]  # Note: A terminal "None" line has been observed with valid subtopics before it.
+        assert subtopics.lower() not in none_subtopics, subtopics
+        subtopics = [s.strip() for s in subtopics.splitlines() if s.strip().lower() not in invalid_subtopics]  # Note: A terminal "None" line has been observed with valid subtopics before it.
 
-    error = io.StringIO()
-    with contextlib.redirect_stderr(error):
-        if not is_subtopics_list_valid(subtopics):
+        error = io.StringIO()
+        with contextlib.redirect_stderr(error):
+            subtopics_list_is_valid = is_subtopics_list_valid(subtopics)
+        if not subtopics_list_is_valid:
             error = error.getvalue().rstrip().removeprefix("Error: ")
-            raise podgenai.exceptions.LanguageModelOutputError(error)
+            if num_attempt == max_attempts:
+                raise podgenai.exceptions.LanguageModelOutputError(error)
+            else:
+                print_warning(f"Fault in attempt {num_attempt} of {max_attempts}: {error}")
+                # Note: This condition has been observed with the subtopic list not being numbered correctly.
+                continue
+
+        break
 
     assert subtopics
+    assert is_subtopics_list_valid(subtopics)
     return subtopics
 
 
@@ -128,7 +137,7 @@ def get_subtopics_speech_texts(*, topic: str, subtopics: Optional[list[str]] = N
     subtopics_speech_texts = {subtopic_name: f'Section {subtopic_name.replace('.', ':', 1)}:\n\n{subtopic_text} {{pause}}' for subtopic_name, subtopic_text in subtopics_texts.items()}
     # Note: A pause at the beginning is skipped by the TTS generator, but it is not skipped if at the end, and so it is kept at the end.
 
-    subtopics_speech_texts[subtopics[0]] = f'"{topic}"\n\n{{pause}}\n{PROMPTS['tts_disclaimer']} {{pause}}\n\n{subtopics_speech_texts[subtopics[0]]}'
+    subtopics_speech_texts[subtopics[0]] = f'{topic}:\n\n{{pause}}\n{PROMPTS['tts_disclaimer']} {{pause}}\n\n{subtopics_speech_texts[subtopics[0]]}'
     # Note: TTS disclaimer about AI generated audio is required by OpenAI as per https://platform.openai.com/docs/guides/text-to-speech/do-i-own-the-outputted-audio-files
     # Note: It has proven more reliable for the pause to be structured in this way for section 1, rather than be in the leading topic line.
 
